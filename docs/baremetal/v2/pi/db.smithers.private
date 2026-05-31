@@ -1,0 +1,22 @@
+; base zone file for smithers.private
+$TTL 5m    ; default TTL for zone
+$ORIGIN smithers.private. ; base domain-name
+; Start of Authority RR defining the key characteristics of the zone (domain)
+@         IN      SOA   ns1.smithers.private. email.smithers.private. (
+                                2024082701 ; serial number
+                                12h        ; refresh
+                                15m        ; update retry
+                                3w         ; expiry
+                                2h         ; minimum
+                                )
+; name server RR for the domain
+           IN      NS      ns1.smithers.private.
+; domain hosts includes NS records defined above
+; plus any others required
+; for instance a user query for the A RR of k8s.smithers.private will
+; return the IPv4 address 192.168.0.41 from this zone file
+ns1        IN      A       192.168.0.32   ; this points to the DNS nameserver box
+api        IN      A       192.168.0.0    ; this points to the ip address provided by ip-address-pool.yaml when configuring metallb
+client     IN      A       192.168.0.0    ; this points to the ip address provided by ip-address-pool.yaml when configuring metallb
+k8s        IN      A       192.168.0.41   ; this points to the box hosting the k8s control plane
+registry   IN      A       192.168.0.0    ; this points to the ip address provided by ip-address-pool.yaml when configuring metallb

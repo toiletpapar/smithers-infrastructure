@@ -1,0 +1,74 @@
+// Allow queries from only one subnet
+// defined in an acl clause
+acl our-nets {
+  192.168.0.0/24;
+};
+
+// authoritative primary named.conf file
+// options clause defining the server-wide properties
+options {
+  // all relative paths use this directory as a base
+  directory "/var/cache/bind";
+
+  // version statement for security to avoid hacking known weaknesses
+  // if the real version number is revealed
+  version "not currently available";
+
+  // This is the default - allows user queries from our-nets IP
+  allow-query { our-nets; };
+
+  // this is the default
+  recursion yes;
+
+  // this ensures that any reverse map for private IPs
+  // not defined in a zone file will *not* be passed to the public network
+  // it is the default value
+  empty-zones-enable yes;
+
+  // If there is a firewall between you and nameservers you want
+  // to talk to, you may need to fix the firewall to allow multiple
+  // ports to talk.  See http://www.kb.cert.org/vuls/id/800113
+
+  // If your ISP provided one or more IP addresses for stable
+  // nameservers, you probably want to use them as forwarders.
+  // This defines the addresses of the resolvers to which queries will be forwarded
+  forwarders {
+    8.8.8.8;
+    8.8.4.4;
+  };
+
+  //========================================================================
+  // If BIND logs error messages about the root key being expired,
+  // you will need to update your keys.  See https://www.isc.org/bind-keys
+  //========================================================================
+  dnssec-validation auto;
+
+  listen-on-v6 { any; };
+
+  // indicates all queries will be forwarded other than for defined zones
+  forward only;
+
+  // Set the maximum cache size to 50% of available memory
+  max-cache-size 50%;
+};
+// logging clause
+// log to default.log all events from info UP in severity
+// uses 3 files in rotation swaps files when size reaches 250K
+// failure messages that occur before logging is established are
+// in syslog (/var/log/messages)
+//
+logging {
+  channel default_log {
+    // uses a relative path name and the directory statement to
+    // expand to default.log
+    file "default.log" versions 3 size 250k;
+
+    // only log info and up messages - all others discarded
+    severity info;
+    print-time yes;
+    print-severity yes;
+  };
+  category default {
+    default_log;
+  };
+};

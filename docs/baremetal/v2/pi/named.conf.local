@@ -1,0 +1,23 @@
+//
+// Do any local configuration here
+//
+
+// Consider adding the 1918 zones here, if they are not used in your
+// organization
+// include "/etc/bind/zones.rfc1918";
+
+// We are the primary server for smithers.private
+zone "smithers.private" {
+  // this is the primary name server for the zone
+  type primary;
+  file "/etc/bind/db.smithers.private";
+  // this is the default
+  notify yes;
+};
+
+// zone file for local IP reverse map
+zone "0.168.192.in-addr.arpa" {
+  type primary;
+  file "/etc/bind/db.rev.0.168.192.in-addr.arpa";
+  notify no;
+};
