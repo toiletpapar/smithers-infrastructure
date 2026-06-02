@@ -28,8 +28,8 @@ manage_etc_hosts: true
 packages:
 - avahi-daemon
 - bind9
-- bind9utils
-- dnsutils
+- bind9-utils
+- bind9-dnsutils
 apt:
   preserve_sources_list: true
   conf: |
@@ -61,9 +61,9 @@ runcmd:
 - mkdir -p /etc/bind
 
 # 5. Pull DNS configs cleanly over HTTPS from GitHub
-- curl -sSL -H "User-Agent: cloud-init on pi" https://raw.githubusercontent.com/<path to your dns options>/named.conf.options -o /etc/bind/named.conf.options
-- curl -sSL -H "User-Agent: cloud-init on pi" https://raw.githubusercontent.com/<path to your zones>/named.conf.local -o /etc/bind/named.conf.local
-- curl -sSL -H "User-Agent: cloud-init on pi" https://raw.githubusercontent.com/<path to record definitions>/db.smithers.private -o /etc/bind/db.smithers.private
+- 'curl -sSL -H "User-Agent: cloud-init on pi" https://raw.githubusercontent.com/<path to your dns options>/named.conf.options -o /etc/bind/named.conf.options'
+- 'curl -sSL -H "User-Agent: cloud-init on pi" https://raw.githubusercontent.com/<path to your zones>/named.conf.local -o /etc/bind/named.conf.local'
+- 'curl -sSL -H "User-Agent: cloud-init on pi" https://raw.githubusercontent.com/<path to record definitions>/db.smithers.private -o /etc/bind/db.smithers.private'
 
 # 6. Apply secure permissions & proper ownership (since 'bind' user now safely exists)
 - chown root:bind /etc/bind/named.conf.options /etc/bind/named.conf.local /etc/bind/db.smithers.private
