@@ -50,46 +50,29 @@ users:
   # 3. Add your public SSH key so you can SSH into your pi when you feel you need to
   ssh_authorized_keys:
       - ssh-ed25519 <your public ssh key>
-# 4. Pull DNS configs from your repository
-write_files:
-# Configure BIND9 global settings to allow queries and define forwarders
-- source:
-    uri: https://raw.githubusercontent.com/<path to your dns options>/named.conf.options
-    headers:
-      User-Agent: cloud-init on pi
-  path: /etc/bind/named.conf.options
-  permissions: '0644'
-  owner: 'root:bind'
-# Define your custom local network zone
-- source:
-    uri: https://raw.githubusercontent.com/<path to your zones>/named.conf.local
-    headers:
-      User-Agent: cloud-init on pi
-  path: /etc/bind/named.conf.local
-  permissions: '0644'
-  owner: 'root:bind'
-# Build the actual local DNS record database
-- source:
-    uri: https://raw.githubusercontent.com/<path to record definitions>/db.smithers.private
-    headers:
-      User-Agent: cloud-init on pi
-  path: /etc/bind/db.smithers.private
-    permissions: '0644'
-    owner: 'root:bind'
-
-
 enable_ssh: true
 ssh_pwauth: false
 rpi:
   interfaces:
     serial: true
 
-# 5. Run runtime commands to lock in the service state
 runcmd:
+# 4. Ensure target directory exists
+- mkdir -p /etc/bind
+
+# 5. Pull DNS configs cleanly over HTTPS from GitHub
+- curl -sSL -H "User-Agent: cloud-init on pi" https://raw.githubusercontent.com/<path to your dns options>/named.conf.options -o /etc/bind/named.conf.options
+- curl -sSL -H "User-Agent: cloud-init on pi" https://raw.githubusercontent.com/<path to your zones>/named.conf.local -o /etc/bind/named.conf.local
+- curl -sSL -H "User-Agent: cloud-init on pi" https://raw.githubusercontent.com/<path to record definitions>/db.smithers.private -o /etc/bind/db.smithers.private
+
+# 6. Apply secure permissions & proper ownership (since 'bind' user now safely exists)
+- chown root:bind /etc/bind/named.conf.options /etc/bind/named.conf.local /etc/bind/db.smithers.private
+- chmod 0644 /etc/bind/named.conf.options /etc/bind/named.conf.local /etc/bind/db.smithers.private
+
+# 7. Cycle the services to lock in changes
 - systemctl daemon-reload
 - systemctl enable bind9
 - systemctl restart bind9
-
 ```
 
 If you have configured your wifi as part of creating the image, you should have a network_config that looks like this:
