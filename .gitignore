@@ -1,3 +1,4 @@
 **/credentials
 secrets/baremetal/k8s
 minikube
+cloud-init

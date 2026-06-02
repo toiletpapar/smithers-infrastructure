@@ -9,6 +9,8 @@
 * Pick a `username` that you'll use when installing raspberrypi os (this project uses `core`)
 * Format SD with Raspberry Pi OS w/o desktop, 64-bit
 * (Optional) Customize the image with your wifi credentials. These settings will be found in the network_config of the bootfs volume.
+* (Optional) Customize the image with a password auth user so that you can troubleshoot with monitor/keyboard
+* (Optional) Add your SSH keys in
 
 After imaging your SD card, we will be using cloud-init to set up the rest of our settings (i.e. BIND9)
 
@@ -43,6 +45,8 @@ users:
   groups: users,adm,dialout,audio,netdev,video,plugdev,cdrom,games,input,gpio,spi,i2c,render,sudo
   shell: /bin/bash
   sudo: ['ALL=(ALL) NOPASSWD:ALL']
+  lock_passwd: false
+  passwd: "<your hashed password>"
   # 3. Add your public SSH key so you can SSH into your pi when you feel you need to
   ssh_authorized_keys:
       - ssh-ed25519 <your public ssh key>
@@ -55,7 +59,7 @@ write_files:
       User-Agent: cloud-init on pi
   path: /etc/bind/named.conf.options
   permissions: '0644'
-  owner: root:bind
+  owner: 'root:bind'
 # Define your custom local network zone
 - source:
     uri: https://raw.githubusercontent.com/<path to your zones>/named.conf.local
@@ -63,7 +67,7 @@ write_files:
       User-Agent: cloud-init on pi
   path: /etc/bind/named.conf.local
   permissions: '0644'
-  owner: root:bind
+  owner: 'root:bind'
 # Build the actual local DNS record database
 - source:
     uri: https://raw.githubusercontent.com/<path to record definitions>/db.smithers.private
@@ -71,10 +75,11 @@ write_files:
       User-Agent: cloud-init on pi
   path: /etc/bind/db.smithers.private
     permissions: '0644'
-    owner: root:bind
+    owner: 'root:bind'
 
 
 enable_ssh: true
+ssh_pwauth: false
 rpi:
   interfaces:
     serial: true
@@ -105,9 +110,11 @@ network:
       access-points:
         "<your SSID>":
           password: "<your hashed password>"
-      optional: true
+      optional: false
 ```
 
-Replace `<values>` as required. Proceed to b01-pi-dns for an explanation of how to configure your dns server.
+Replace `<values>` as required. One of eth0.optional or wlan0.optional need to be false. The one that should be false is the one you'd like to use to retrieve the bind9 config files remotely.
+
+Proceed to b01-pi-dns for an explanation of how to configure your dns server.
 
 After ensuring all your files are uploaded remotely for your pi to pull down, plug in your boot drive into the pi. Then follow the rest of the instructions in b01-pi-dns to make your router talk to your new DNS server. You may additionally verify your installation and troubleshoot by SSH-ing into the pi.
