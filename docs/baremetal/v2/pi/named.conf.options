@@ -1,6 +1,7 @@
 // Allow queries from only one subnet
 // defined in an acl clause
 acl our-nets {
+  localhost;
   192.168.0.0/24;
 };
 
