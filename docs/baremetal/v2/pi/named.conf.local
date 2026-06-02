@@ -14,10 +14,3 @@ zone "smithers.private" {
   // this is the default
   notify yes;
 };
-
-// zone file for local IP reverse map
-zone "0.168.192.in-addr.arpa" {
-  type primary;
-  file "/etc/bind/db.rev.0.168.192.in-addr.arpa";
-  notify no;
-};
