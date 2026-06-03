@@ -3,6 +3,8 @@
 acl our-nets {
   localhost;
   192.168.0.0/24;
+  // Wireguard VPN
+  10.5.5.0/24;
 };
 
 // authoritative primary named.conf file
